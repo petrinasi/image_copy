@@ -1,4 +1,4 @@
-# -*- coding: cp1252 -*-
+# -*- coding: UTF-8 -*-
 import time
 import exifread
 from os import path, walk, makedirs
@@ -6,16 +6,16 @@ from platform import system
 
 class ImageCopy:
     key = "EXIF DateTimeOriginal"
-    picturefiles = ('.tiff', '.jpg')
-    videofiles = ('.avi', '.mov', '.mp4', '.mv4', '3gp')
+    picturefiles = ('.tiff', '.jpg', '.gif', '.bmp')
+    videofiles = ('.avi', '.mov', '.mp4', '.mv4', '3gp', '.mpg')
     video_target_root = "Videos"
-    months = {'01': 'Tammikuu', '02': 'Helmikuu', '03': 'Maaliskuu', '04': 'Huhtikuu',
-              '05': 'Toukokuu', '06': 'Kes‰kuu', '07': 'Hein‰kuu', '08': 'Elokuu',
-              '09': 'Syyskuu', '10': 'Lokakuu', '11': 'Marraskuu', '12': 'Joulukuu'}
+    months = {'01': u'Tammikuu', '02': u'Helmikuu', '03': u'Maaliskuu', '04': u'Huhtikuu',
+              '05': u'Toukokuu', '06': u'Kes√§kuu', '07': u'Hein√§kuu', '08': u'Elokuu',
+              '09': u'Syyskuu', '10': u'Lokakuu', '11': u'Marraskuu', '12': u'Joulukuu'}
 
     def __init__(self, source, target, copy=False):
-        self.copyfrom = source
-        self.copyto = target
+        self.copyfrom = path.normpath(source.replace("\ ", " "))
+        self.copyto = path.normpath(target.replace("\ ", " "))
         self.move_manually_folder = ImageCopy.create_directory(self, "move_manually")
         self.copy = copy
         #self.number_of_files = 0
@@ -25,6 +25,13 @@ class ImageCopy:
         """
         Searches defined files starting from 'searchroot'
         """
+        if self.copyfrom == self.copyto:
+            print("Source and target directories cannot be same!")
+            exit()
+        if not path.isdir(self.copyfrom):
+            #try to remove
+            print("Source is not directory!")
+            exit()
 
         for root, dirs, files in walk(self.copyfrom, topdown=True):
             for name in files:
@@ -122,6 +129,3 @@ class ImageCopy:
             return str(filename[3:7] + ":" + filename[:1])
         else:
             return None
-
-test = ImageCopy("images", "copyed_images")
-test.copy_files()
