@@ -3,6 +3,7 @@ import time
 from os import path, walk, makedirs
 from platform import system
 import shutil
+
 import exifread
 
 
@@ -36,7 +37,6 @@ class ImageCopy:
             print("Source and target directories cannot be same!")
             exit()
         if not path.isdir(self.copyfrom):
-            #try to remove
             print("Source is not directory!")
             exit()
 
@@ -58,7 +58,7 @@ class ImageCopy:
                         self.copy_one_file(source, self.OTHER_FILES_DIR)
 
         print("Number files copyed: {0}\nTotal number of files: {1}".format(str(self.nmbr_files_copyed),
-                                                                                str(self.nmbr_files_total)))
+                                                                            str(self.nmbr_files_total)))
 
     def copy_one_file(self, source, filetype):
 
@@ -75,27 +75,27 @@ class ImageCopy:
             trgt_file = path.join(trgt_dir, path.basename(source))
             while path.isfile(trgt_file):
                 if count == 1:
-                    tempArr = trgt_file.rsplit('.', 1)
-                    trgt_file = tempArr[0] +'(1).' + tempArr[1]
+                    temp_arr = trgt_file.rsplit('.', 1)
+                    trgt_file = temp_arr[0] + '(1).' + temp_arr[1]
                 else:
-                    tempArr = trgt_file.rsplit(')', 1)
-                    trgt_file = tempArr[0] + str(count) + ')' + tempArr[1]
+                    temp_arr = trgt_file.rsplit(')', 1)
+                    trgt_file = temp_arr[0] + str(count) + ')' + temp_arr[1]
                 count += 1
             try:
                 shutil.copy2(source, trgt_file)
                 self.nmbr_files_copyed += 1
-                print("Copyed file : "+ trgt_file)
+                print("Copyed file : " + trgt_file)
             except:
                 print("Copying failed: " + trgt_file)
 
     def create_directory(self, trgt_dir):
-        #create path with new directory name
+        # create path with new directory name
         trgt_dir = path.join(self.copyto, trgt_dir)
         trgt_dir = path.normpath(trgt_dir)
         if not path.isdir(trgt_dir):
             try:
                 makedirs(trgt_dir)
-                print("Created directory:" + trgt_dir )
+                print("Created directory:" + trgt_dir)
             except:
                 print("Couldn't create directory: " + trgt_dir)
                 if trgt_dir.endswith(self.OTHER_FILES_DIR):
@@ -109,7 +109,7 @@ class ImageCopy:
         ctime = self.get_file_creationtime(source, filetype)
 
         if ctime is None:
-            print("File creation time missing! File moved to "+ self.move_manually_folder)
+            print("File creation time missing! File moved to " + self.move_manually_folder)
             dirname = self.move_manually_folder
         else:
             dirname = ctime[:4] + "-" + ctime[5:7] + " " + self.months[ctime[5:7]]
@@ -139,23 +139,25 @@ class ImageCopy:
         else:
             return None
 
-    def get_creationtime(self, source):
+    @staticmethod
+    def get_creationtime(source):
         """ Return local time format:
                 time.struct_time(tm_year=2013, tm_mon=5, tm_mday=22, tm_hour=17,
                 tm_min=43, tm_sec=0, tm_wday=2, tm_yday=142, tm_isdst=1)
         """
 
         if system() is 'Windows':
-            #On Windows use getctime()
+            # On Windows use getctime()
             ltime = time.localtime(path.getctime(source))
         else:
-            #On POSIX system use getmtime()
+            # On POSIX system use getmtime()
             ltime = time.localtime(path.getmtime(source))
 
         ctime = time.strftime("%Y:%m", ltime)
         return str(ctime)
 
-    def get_filenamedate(self, source):
+    @staticmethod
+    def get_filenamedate(source):
         filename = source.replace("\\", "/")
         filename = filename[filename.rfind("/") + 1:]
         filename.strip('-: ')
