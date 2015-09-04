@@ -1,11 +1,17 @@
 # -*- coding: UTF-8 -*-
 import time
-import exifread
 from os import path, walk, makedirs
 from platform import system
+import shutil
+import exifread
+
 
 class ImageCopy:
     key = "EXIF DateTimeOriginal"
+    VIDEO_FILE_DIR = "Videos"
+    IMAGE_FILE_DIR = "Images"
+    OTHER_IMAGES_DIR = "muut_kuvat"
+    OTHER_FILES_DIR = "muut_tiedostot"
     picturefiles = ('.tiff', '.jpg', '.gif', '.bmp')
     videofiles = ('.avi', '.mov', '.mp4', '.mv4', '3gp', '.mpg')
     video_target_root = "Videos"
@@ -13,13 +19,14 @@ class ImageCopy:
               '05': u'Toukokuu', '06': u'Kesäkuu', '07': u'Heinäkuu', '08': u'Elokuu',
               '09': u'Syyskuu', '10': u'Lokakuu', '11': u'Marraskuu', '12': u'Joulukuu'}
 
-    def __init__(self, source, target, copy=False):
+    def __init__(self, source, target, do_copy=False):
         self.copyfrom = path.normpath(source.replace("\ ", " "))
         self.copyto = path.normpath(target.replace("\ ", " "))
-        self.move_manually_folder = ImageCopy.create_directory(self, "move_manually")
-        self.copy = copy
-        #self.number_of_files = 0
-        #self.number_
+        self.move_manually_folder = ImageCopy.create_directory(self, self.OTHER_IMAGES_DIR)
+        self.otherfiles = ImageCopy.create_directory(self, self.OTHER_FILES_DIR)
+        self.do_copy = do_copy
+        self.nmbr_files_copyed = 0
+        self.nmbr_files_total = 0
 
     def copy_files(self):
         """
@@ -34,45 +41,72 @@ class ImageCopy:
             exit()
 
         for root, dirs, files in walk(self.copyfrom, topdown=True):
+            self.nmbr_files_total += len(files)
             for name in files:
                 if name[name.rfind('.'):].lower() in self.picturefiles:
                     source = path.join(root, name)
                     print("Source file:" + source)
-                    self.copy_imagefile(source)
+                    self.copy_one_file(source, self.IMAGE_FILE_DIR)
                 elif name[name.rfind('.'):].lower() in self.videofiles:
                     source = path.join(root, name)
                     print("Source file:" + source)
-                    self.copy_videofile(source)
+                    self.copy_one_file(source, self.VIDEO_FILE_DIR)
+                else:
+                    source = path.join(root, name)
+                    print("Source file:" + source)
+                    if name[0] != '.':
+                        self.copy_one_file(source, self.OTHER_FILES_DIR)
 
-    def copy_imagefile(self, source):
-        dir = self.get_directoryname(source)
-        dir = path.join("Images", dir)
-        dir = self.create_directory(dir)
-        print("Image target directory: "+dir)
+        print("Number files copyed: {0}\nTotal number of files: {1}".format(str(self.nmbr_files_copyed),
+                                                                                str(self.nmbr_files_total)))
 
-    def copy_videofile(self, source):
-        dir = self.get_directoryname(source)
-        dir = path.join("Videos", dir)
-        dir = self.create_directory(dir)
-        print("Video target directory: "+dir)
+    def copy_one_file(self, source, filetype):
 
-    def create_directory(self, dir):
+        if filetype != self.OTHER_FILES_DIR:
+            trgt_dir = self.get_directoryname(source, filetype)
+            trgt_dir = path.join(filetype, trgt_dir)
+        else:
+            trgt_dir = self.OTHER_FILES_DIR
 
-        #create path with new directory name
-        dir = path.join(self.copyto, dir)
-        dir = path.normpath(dir)
-        if not path.isdir(dir):
+        trgt_dir = self.create_directory(trgt_dir)
+
+        if trgt_dir:
+            count = 1
+            trgt_file = path.join(trgt_dir, path.basename(source))
+            while path.isfile(trgt_file):
+                if count == 1:
+                    tempArr = trgt_file.rsplit('.', 1)
+                    trgt_file = tempArr[0] +'(1).' + tempArr[1]
+                else:
+                    tempArr = trgt_file.rsplit(')', 1)
+                    trgt_file = tempArr[0] + str(count) + ')' + tempArr[1]
+                count += 1
             try:
-                makedirs(dir)
-                print("Created directory:" + dir )
+                shutil.copy2(source, trgt_file)
+                self.nmbr_files_copyed += 1
+                print("Copyed file : "+ trgt_file)
             except:
-                print("Couldn't create directory: " + dir)
-                dir = None
-        return dir
+                print("Copying failed: " + trgt_file)
 
-    def get_directoryname(self, source):
+    def create_directory(self, trgt_dir):
+        #create path with new directory name
+        trgt_dir = path.join(self.copyto, trgt_dir)
+        trgt_dir = path.normpath(trgt_dir)
+        if not path.isdir(trgt_dir):
+            try:
+                makedirs(trgt_dir)
+                print("Created directory:" + trgt_dir )
+            except:
+                print("Couldn't create directory: " + trgt_dir)
+                if trgt_dir.endswith(self.OTHER_FILES_DIR):
+                    return None
+                else:
+                    return self.otherfiles
+        return trgt_dir
+
+    def get_directoryname(self, source, filetype):
         # localtime format in EXIF tag: 2012:06:23 14:26:30
-        ctime = self.get_file_creationtime(source)
+        ctime = self.get_file_creationtime(source, filetype)
 
         if ctime is None:
             print("File creation time missing! File moved to "+ self.move_manually_folder)
@@ -82,9 +116,13 @@ class ImageCopy:
 
         return dirname
 
-    def get_file_creationtime(self, source):
+    def get_file_creationtime(self, source, filetype):
         # localtime format in EXIF tag: 2012:06:23 14:26:30
-        ctime = self.get_exif_creationtime(source)
+        if filetype == self.IMAGE_FILE_DIR:
+            ctime = self.get_exif_creationtime(source)
+        else:
+            ctime = None
+
         if ctime is None:
             """ Check file name for date i.e ddmmyyyyxxx.jpg. if it has a date use it"""
             ctime = self.get_filenamedate(source)
@@ -120,12 +158,12 @@ class ImageCopy:
     def get_filenamedate(self, source):
         filename = source.replace("\\", "/")
         filename = filename[filename.rfind("/") + 1:]
-
+        filename.strip('-: ')
         # if file name has time format as ddmmyyyy
-        if filename.isdigit() and \
+        if filename[:8].isdigit() and \
                         int(filename[:2]) <= 31 and \
-                                0 < int(filename[1:3]) <= 12 and \
-                                1999 <= int(filename[3:7]) < 2030:
-            return str(filename[3:7] + ":" + filename[:1])
+                                0 < int(filename[2:4]) <= 12 and \
+                                1999 <= int(filename[4:8]) < 2030:
+            return str(filename[4:8] + ":" + filename[2:4])
         else:
             return None
