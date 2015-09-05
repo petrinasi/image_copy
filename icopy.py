@@ -3,6 +3,7 @@ import time
 from os import path, walk, makedirs
 from platform import system
 import shutil
+import filecmp
 
 import exifread
 
@@ -15,17 +16,16 @@ class ImageCopy:
     OTHER_FILES_DIR = "muut_tiedostot"
     picturefiles = ('.tiff', '.jpg', '.gif', '.bmp')
     videofiles = ('.avi', '.mov', '.mp4', '.mv4', '3gp', '.mpg')
-    video_target_root = "Videos"
     months = {'01': u'Tammikuu', '02': u'Helmikuu', '03': u'Maaliskuu', '04': u'Huhtikuu',
               '05': u'Toukokuu', '06': u'Kesäkuu', '07': u'Heinäkuu', '08': u'Elokuu',
               '09': u'Syyskuu', '10': u'Lokakuu', '11': u'Marraskuu', '12': u'Joulukuu'}
 
-    def __init__(self, source, target, do_copy=False):
+    def __init__(self, source, target, test_without_copy=True):
         self.copyfrom = path.normpath(source.replace("\ ", " "))
         self.copyto = path.normpath(target.replace("\ ", " "))
         self.move_manually_folder = ImageCopy.create_directory(self, self.OTHER_IMAGES_DIR)
         self.otherfiles = ImageCopy.create_directory(self, self.OTHER_FILES_DIR)
-        self.do_copy = do_copy
+        self.test_without_copy = test_without_copy
         self.nmbr_files_copyed = 0
         self.nmbr_files_total = 0
 
@@ -45,7 +45,7 @@ class ImageCopy:
             for name in files:
                 if name[name.rfind('.'):].lower() in self.picturefiles:
                     source = path.join(root, name)
-                    print("Source file:" + source)
+
                     self.copy_one_file(source, self.IMAGE_FILE_DIR)
                 elif name[name.rfind('.'):].lower() in self.videofiles:
                     source = path.join(root, name)
@@ -61,7 +61,7 @@ class ImageCopy:
                                                                             str(self.nmbr_files_total)))
 
     def copy_one_file(self, source, filetype):
-
+        print("Source file:" + source)
         if filetype != self.OTHER_FILES_DIR:
             trgt_dir = self.get_directoryname(source, filetype)
             trgt_dir = path.join(filetype, trgt_dir)
@@ -74,6 +74,8 @@ class ImageCopy:
             count = 1
             trgt_file = path.join(trgt_dir, path.basename(source))
             while path.isfile(trgt_file):
+                if filecmp.cmp(source, trgt_file, shallow=False):
+                    return
                 if count == 1:
                     temp_arr = trgt_file.rsplit('.', 1)
                     trgt_file = temp_arr[0] + '(1).' + temp_arr[1]
@@ -82,9 +84,10 @@ class ImageCopy:
                     trgt_file = temp_arr[0] + str(count) + ')' + temp_arr[1]
                 count += 1
             try:
-                shutil.copy2(source, trgt_file)
+                if not self.test_without_copy:
+                    shutil.copy2(source, trgt_file)
                 self.nmbr_files_copyed += 1
-                print("Copyed file : " + trgt_file)
+                print("Target file : " + trgt_file)
             except:
                 print("Copying failed: " + trgt_file)
 
