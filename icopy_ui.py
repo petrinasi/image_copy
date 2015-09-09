@@ -1,13 +1,12 @@
-
 from Tkinter import *
 import ttk
 import tkFileDialog
 import icopy
+import stdout_redirector as redirector
 from os import path
 
 
 class ImageCopyUi():
-
 
     def __init__(self, parent):
 
@@ -59,11 +58,14 @@ class ImageCopyUi():
         mainframe.rowconfigure(5, weight=1)
 
         for child in mainframe.winfo_children(): child.grid_configure(padx=3, pady=3)
-        logtext = Text(mainframe, width=30, height=15, state='disabled')
-        logtext.grid(row=2, column=0, columnspan=4, rowspan=3, padx=5, pady=3, sticky=(W+E))
+
+        self.logtext = Text(mainframe, width=79, height=20)
+        self.logtext.grid(row=2, column=0, columnspan=4, rowspan=3, padx=5, pady=3, sticky=(W+E))
+        self.rd = redirector.StdoutToWidget(self.logtext, 0, 0)
 
         assert isinstance(self.parent.bind, object)
         self.parent.bind('<Return>', self.copy_files)
+        print("ImageCopy UI initialized.")
 
     def ask_source_directory(self):
         """Returns a selected directoryname."""
@@ -85,8 +87,12 @@ class ImageCopyUi():
 
     def copy_files(self):
         # Create instance of iCopy and copy files
-        self.ic = icopy.ImageCopy(str(self.source), str(self.target), True)
+        self.rd.flush()
+        self.rd.start()
+        self.ic = icopy.ImageCopy(self.source.get(), self.target.get(), False)
         self.ic.copy_files()
+        self.rd.flush()
+        self.rd.stop()
 
 def main():
 
@@ -94,6 +100,7 @@ def main():
     root.title('ImageCopy')
     ImageCopyUi(root)
     root.mainloop()
+
 
 
 if __name__ == '__main__':

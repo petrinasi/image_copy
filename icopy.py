@@ -4,6 +4,7 @@ from os import path, walk, makedirs
 from platform import system
 import shutil
 import filecmp
+import sys
 
 import exifread
 
@@ -16,6 +17,7 @@ DTO_KEY = "EXIF DateTimeOriginal"
 
 class ImageCopy:
     def __init__(self, source, target, test_without_copy=True):
+
         self.copyfrom = path.normpath(source.replace("\ ", " "))
         self.copyto = path.normpath(target.replace("\ ", " "))
         self.move_manually_folder = ImageCopy.create_directory(self, OTHER_IMAGES_DIR)
@@ -24,39 +26,40 @@ class ImageCopy:
         self.nmbr_files_copyed = 0
         self.nmbr_files_total = 0
 
+    def enctoutf8(self, source):
+        return unicode(source, 'utf-8', 'ignore')
+
     def copy_files(self):
         """
         Searches defined files starting from 'searchroot'
         """
         picturefiles = ('.tiff', '.jpg', '.gif', '.bmp')
-        videofiles = ('.avi', '.mov', '.mp4', '.mv4', '3gp', '.mpg')
+        videofiles = ('.avi', '.mov', '.mp4', '.mv4', '.3gp', '.mpg')
 
         if self.copyfrom == self.copyto:
-            print("Source and target directories cannot be same!")
-            exit()
+            print(u"Source and target directories cannot be same!")
+            return
         if not path.isdir(self.copyfrom):
-            print("Source is not directory!")
-            exit()
+            print(u"Source is not directory!")
+            return
 
         for root, dirs, files in walk(self.copyfrom, topdown=True):
             self.nmbr_files_total += len(files)
             for name in files:
+                source = self.enctoutf8(path.join(root, name))
                 if name[name.rfind('.'):].lower() in picturefiles:
-                    source = path.join(root, name)
                     self.copy_one_file(source, IMAGE_FILE_DIR)
                 elif name[name.rfind('.'):].lower() in videofiles:
-                    source = path.join(root, name)
                     self.copy_one_file(source, VIDEO_FILE_DIR)
                 else:
-                    source = path.join(root, name)
                     if name[0] != '.':
                         self.copy_one_file(source, OTHER_FILES_DIR)
 
-        print("Number files copyed: {0}\nTotal number of files: {1}".format(str(self.nmbr_files_copyed),
+        print(u"Number files copyed: {0}\nTotal number of files: {1}".format(str(self.nmbr_files_copyed),
                                                                             str(self.nmbr_files_total)))
 
     def copy_one_file(self, source, filetype):
-        print("Source file:" + source)
+        print(u"Source file: " + source)
         if filetype != OTHER_FILES_DIR:
             trgt_dir = self.get_directoryname(source, filetype)
             trgt_dir = path.join(filetype, trgt_dir)
@@ -82,9 +85,9 @@ class ImageCopy:
                 if not self.test_without_copy:
                     shutil.copy2(source, trgt_file)
                 self.nmbr_files_copyed += 1
-                print("Target file : " + trgt_file)
+                print(u"Target file: " + trgt_file)
             except:
-                print("Copying failed: " + trgt_file)
+                print(u"Copying failed: " + trgt_file)
 
     def create_directory(self, trgt_dir):
         # create path with new directory name
@@ -93,9 +96,9 @@ class ImageCopy:
         if not path.isdir(trgt_dir):
             try:
                 makedirs(trgt_dir)
-                print("Created directory:" + trgt_dir)
+                print(u"Created directory:" + trgt_dir)
             except:
-                print("Couldn't create directory: " + trgt_dir)
+                print(u"Couldn't create directory: " + trgt_dir)
                 if trgt_dir.endswith(OTHER_FILES_DIR):
                     return None
                 else:
@@ -111,7 +114,7 @@ class ImageCopy:
         ctime = self.get_file_creationtime(source, filetype)
 
         if ctime is None:
-            print("File creation time missing! File moved to " + self.move_manually_folder)
+            print(u"File creation time missing! File moved to " + self.move_manually_folder)
             dirname = self.move_manually_folder
         else:
             dirname = ctime[:4] + "-" + ctime[5:7] + " " + months[ctime[5:7]]
