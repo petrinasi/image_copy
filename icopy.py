@@ -15,19 +15,28 @@ OTHER_FILES_DIR = "muut_tiedostot"
 DTO_KEY = "EXIF DateTimeOriginal"
 
 
+def log(text):
+    sys.stdout.write(text + '\n')
+    sys.stdout.flush()
+
+
 class ImageCopy:
-    def __init__(self, source, target, test_without_copy=True):
+    def __init__(self, source, target, test_without_copy=False):
 
         self.copyfrom = path.normpath(source.replace("\ ", " "))
         self.copyto = path.normpath(target.replace("\ ", " "))
-        self.move_manually_folder = ImageCopy.create_directory(self, OTHER_IMAGES_DIR)
-        self.otherfiles = ImageCopy.create_directory(self, OTHER_FILES_DIR)
+        self.move_manually_folder = OTHER_IMAGES_DIR
+        self.otherfiles = OTHER_FILES_DIR
         self.test_without_copy = test_without_copy
         self.nmbr_files_copyed = 0
         self.nmbr_files_total = 0
 
-    def enctoutf8(self, source):
-        return unicode(source, 'utf-8', 'ignore')
+    @staticmethod
+    def enctoutf8(source):
+        if isinstance(source, str):
+            return unicode(source, 'utf-8', 'ignore')
+        else:
+            return source
 
     def copy_files(self):
         """
@@ -55,11 +64,11 @@ class ImageCopy:
                     if name[0] != '.':
                         self.copy_one_file(source, OTHER_FILES_DIR)
 
-        print(u"Number files copyed: {0}\nTotal number of files: {1}".format(str(self.nmbr_files_copyed),
-                                                                            str(self.nmbr_files_total)))
+        log(u"Number files copyed: {0}\nTotal number of files: {1}".format(str(self.nmbr_files_copyed),
+                                                                             str(self.nmbr_files_total)))
 
     def copy_one_file(self, source, filetype):
-        print(u"Source file: " + source)
+        log(u"Source file: " + source)
         if filetype != OTHER_FILES_DIR:
             trgt_dir = self.get_directoryname(source, filetype)
             trgt_dir = path.join(filetype, trgt_dir)
@@ -85,9 +94,9 @@ class ImageCopy:
                 if not self.test_without_copy:
                     shutil.copy2(source, trgt_file)
                 self.nmbr_files_copyed += 1
-                print(u"Target file: " + trgt_file)
+                log(u"Target file: " + trgt_file)
             except:
-                print(u"Copying failed: " + trgt_file)
+                log(u"Copying failed: " + trgt_file)
 
     def create_directory(self, trgt_dir):
         # create path with new directory name
@@ -96,9 +105,9 @@ class ImageCopy:
         if not path.isdir(trgt_dir):
             try:
                 makedirs(trgt_dir)
-                print(u"Created directory:" + trgt_dir)
+                log(u"Created directory:" + trgt_dir)
             except:
-                print(u"Couldn't create directory: " + trgt_dir)
+                log(u"Couldn't create directory: " + trgt_dir)
                 if trgt_dir.endswith(OTHER_FILES_DIR):
                     return None
                 else:
@@ -114,7 +123,7 @@ class ImageCopy:
         ctime = self.get_file_creationtime(source, filetype)
 
         if ctime is None:
-            print(u"File creation time missing! File moved to " + self.move_manually_folder)
+            log(u"File creation time missing! File moved to " + self.move_manually_folder)
             dirname = self.move_manually_folder
         else:
             dirname = ctime[:4] + "-" + ctime[5:7] + " " + months[ctime[5:7]]
