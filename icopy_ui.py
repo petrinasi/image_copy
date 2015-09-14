@@ -81,7 +81,25 @@ class ImageCopyUi():
         #assert isinstance(self.parent.bind, object)
         #self.parent.bind('<Return>', self.copy_files)
 
+        # create menu
+        # win = Toplevel(self.parent)
+        # menubar = Menu(win)
+        # appmenu = Menu(menubar, name='apple')
+        # menubar.add_cascade(menu='apple')
+        # appmenu.add_command(label='About My Application')
+        # appmenu.add_separator()
+        # menu_file = Menu(menubar)
+        # menu_help = Menu(menubar)
+        # menubar.add_cascade(menu=menu_file, label='File')
+        # menubar.add_cascade(menu=menu_help, label='Help')
+        # menu_file.add_command(label='Save log', command=self.savelog)
+        # win['menu'] = menubar
+
         print("ImageCopy UI initialized.")
+
+
+    def savelog(self):
+        pass
 
     def ask_source_directory(self):
         """Returns a selected directoryname."""
@@ -123,6 +141,7 @@ def main():
 
     root = Tk()
     root.title('ImageCopy')
+    root.option_add('*tearOff', 0)
     ImageCopyUi(root)
     root.mainloop()
 
