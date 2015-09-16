@@ -1,4 +1,4 @@
-import Tkinter as Tk
+import tkinter as Tk
 import sys
 
 class Std_redirector():

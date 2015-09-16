@@ -6,7 +6,7 @@ from icopy import ImageCopy
 
 def main(args):
     for arg in args:
-        print arg
+        print(arg)
     ic = ImageCopy(args[0], args[1])
     ic.copy_files()
 
