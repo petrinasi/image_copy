@@ -1,0 +1,17 @@
+total 502376
+drwxr-xr-x  16 petri  staff        544 Sep 15 15:13 .
+drwxr-xr-x@ 19 petri  staff        646 Sep 15 15:10 ..
+-rw-r--r--@  1 petri  staff      10244 Sep 15 15:12 .DS_Store
+-rw-r--r--@  1 petri  staff      79417 Sep 15 14:18 .piilokuva
+-rw-r--r--@  1 petri  staff     132097 Dec 15  2008 021205.3gp
+-rw-r--r--@  1 petri  staff     405163 Mar 20  2004 20040319 Kuva 120.jpg
+-rw-r--r--@  1 petri  staff   20317063 Jul 28  2013 2013-07-28 10.31.56.mp4
+-rw-r--r--@  1 petri  staff      45446 Dec 15  2008 2Otto201007.amr
+drwxr-xr-x  12 petri  staff        408 Sep 14 13:22 Äsame
+-rw-r--r--@  1 petri  staff   78076220 Jul 12  2013 DSC_0117.AVI
+-rw-r--r--@  1 petri  staff     602195 Dec 26  2004 Kuva 030.jpg
+-rw-r--r--@  1 petri  staff      79417 Dec 15  2008 Kuva027_no_exif.jpg
+-rw-r--r--@  1 petri  staff  156036605 Jun 25  2013 P6030023.MOV
+-rw-r--r--   1 petri  staff          0 Sep 15 15:13 filet.txt
+-rw-r--r--@  1 petri  staff      79417 Sep 15 14:17 pelkkäkuva
+-rw-r--r--@  1 petri  staff    1325336 Oct 17  2010 sama_nimi.JPG

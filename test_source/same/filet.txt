@@ -1,0 +1,14 @@
+total 465648
+drwxr-xr-x  13 petri  staff        442 Sep 15 15:14 .
+drwxr-xr-x  16 petri  staff        544 Sep 15 15:13 ..
+-rw-r--r--@  1 petri  staff       6148 Sep 14 13:24 .DS_Store
+-rw-r--r--@  1 petri  staff     132097 Dec 15  2008 021205.3gp
+-rw-r--r--@  1 petri  staff    1473118 May 19  2008 18052008040.jpg
+-rw-r--r--@  1 petri  staff     422287 Oct 18  2008 24.11.2008 075.JPG
+-rw-r--r--@  1 petri  staff      45446 Dec 15  2008 2Otto201007.amr
+-rw-r--r--@  1 petri  staff   78076220 Jul 12  2013 DSC_0117.AVI
+-rw-r--r--@  1 petri  staff     602195 Dec 26  2004 Kuva 030.jpg
+-rw-r--r--@  1 petri  staff      79417 Dec 15  2008 Kuva027_no_exif.jpg
+-rw-r--r--@  1 petri  staff  156036605 Jun 25  2013 P6030023.MOV
+-rw-r--r--   1 petri  staff          0 Sep 15 15:14 filet.txt
+-rw-r--r--@  1 petri  staff    1514832 Oct 17  2010 sama_nimi.JPG
