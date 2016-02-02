@@ -42,7 +42,7 @@ class ImageCopy:
         """
         Searches defined files starting from 'searchroot'
         """
-        picturefiles = ('.tiff', '.jpg', '.gif', '.bmp')
+        picturefiles = ('.jpg', '.gif', '.bmp', '.tiff', '.tif')
         videofiles = ('.avi', '.mov', '.mp4', '.mv4', '.3gp', '.mpg')
 
         self.nmbr_files_copyed = 0
@@ -160,7 +160,11 @@ class ImageCopy:
         tags = exifread.process_file(f, details=False, stop_tag=DTO_KEY)
         f.close()
         if DTO_KEY in tags:
-            return str(tags[DTO_KEY])
+            ctime = str(tags[DTO_KEY])
+            if ctime[0:3] is "0000": #If year is zero then return None
+                return None
+            else:
+                return None
         else:
             return None
 
