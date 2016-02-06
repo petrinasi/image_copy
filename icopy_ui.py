@@ -56,7 +56,7 @@ class ImageCopyUi():
 
         # create text widget; stdout will be directed here when copying files
         self.logtext = Text(mainframe, width=0, height=25, state = 'disabled')
-        self.logtext.grid(row=2, column=0, columnspan=5, rowspan=3, padx=5, pady=3, sticky=(W+E))
+        self.logtext.grid(row=2, column=0, columnspan=5, rowspan=3, padx=5, pady=3, sticky=('nswe'))
 
         # create stdout redirector
         self.redir = stdtotextw.Std_redirector(self.logtext)
