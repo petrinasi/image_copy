@@ -166,7 +166,7 @@ class ImageCopy:
         f.close()
         if DTO_KEY in tags:
             ctime = str(tags[DTO_KEY])
-            if ctime[0:3] is "0000": #If year is zero then return None
+            if "0000" == ctime[0:4]: #If year is zero then return None
                 return None
             else:
                 return ctime
