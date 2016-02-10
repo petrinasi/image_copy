@@ -180,12 +180,13 @@ class ImageCopy:
                 tm_min=43, tm_sec=0, tm_wday=2, tm_yday=142, tm_isdst=1)
         """
 
-        if system() is 'Windows':
             # On Windows use getctime()
-            ltime = time.localtime(path.getctime(source))
-        else:
+            # ltime = time.localtime(path.getctime(source))
+
             # On POSIX system use getmtime()
-            ltime = time.localtime(path.getmtime(source))
+            # At least Windows 10 seems to be POSIX
+
+        ltime = time.localtime(path.getmtime(source))
 
         ctime = time.strftime("%Y:%m", ltime)
         return str(ctime)
