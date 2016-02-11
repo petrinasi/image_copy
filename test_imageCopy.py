@@ -56,3 +56,7 @@ class TestImageCopyGetFileDate(TestCase):
         file = 'test_source/24.11.2008 075.jpg'
         self.assertEqual(icopy.ImageCopy.get_filenamedate(file), '2008:11')
 
+    def test_get_creationtime(self):
+        file = 'test_source/P6030023.MOV'
+        self.assertEqual(icopy.ImageCopy.get_creationtime(file), '2015:09')
+
