@@ -23,6 +23,7 @@ class ImageCopyUi():
         self.source = StringVar()
         self.target = StringVar()
         self.tmp_str = StringVar()
+        self.noCopy = BooleanVar()
 
         # define mainframe which contains rest of the widgets
         mainframe = Frame(self.parent, padding=(3,3,12,12))
@@ -44,6 +45,9 @@ class ImageCopyUi():
         self.btn_copy = Button(mainframe, text="Copy", command=self.copy_files, state='disabled')
         self.btn_copy.grid(row=5, column=0, sticky=W)
 
+        checkNoCopy = Checkbutton(mainframe, text='No Copying', variable=self.noCopy, onvalue=True, offvalue=False)
+        checkNoCopy.grid(row=5, column=2, sticky=W)
+
         btn_quit = Button(mainframe, text="Quit", command=self.parent.destroy)
         btn_quit.grid(row=5, column=4, sticky=E)
 
@@ -52,7 +56,7 @@ class ImageCopyUi():
 
         # create text widget; stdout will be directed here when copying files
         self.logtext = Text(mainframe, width=0, height=25, state = 'disabled')
-        self.logtext.grid(row=2, column=0, columnspan=5, rowspan=3, padx=5, pady=3, sticky=(W+E))
+        self.logtext.grid(row=2, column=0, columnspan=5, rowspan=3, padx=5, pady=3, sticky=('nswe'))
 
         # create stdout redirector
         self.redir = stdtotextw.Std_redirector(self.logtext)
@@ -133,7 +137,7 @@ class ImageCopyUi():
         self.logtext.config(state = 'normal')
         self.redir.flush()
         self.redir.start()
-        self.ic = icopy.ImageCopy(self.source.get(), self.target.get(), False)
+        self.ic = icopy.ImageCopy(self.source.get(), self.target.get(), self.noCopy.get())
         self.ic.copy_files()
         self.redir.flush()
         self.redir.stop()

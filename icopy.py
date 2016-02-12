@@ -87,6 +87,8 @@ class ImageCopy:
             count = 1
             trgt_file = path.join(trgt_dir, path.basename(source))
             while path.isfile(trgt_file):
+                # if there is different file with same name add (x) to filename
+                # e.g. kuva(2).jpg
                 if filecmp.cmp(source, trgt_file, shallow=False):
                     return
                 if count == 1:
@@ -97,12 +99,14 @@ class ImageCopy:
                     trgt_file = temp_arr[0] + '(' + str(count) + temp_arr[1][len(str(count)):]
                 count += 1
             try:
+                # copy file
                 if not self.test_without_copy:
                     log("Copyed file: " + trgt_file)
                     shutil.copy2(source, trgt_file)
                     self.nmbr_files_copyed += 1
                 else:
                     log("Target file: " + trgt_file)
+                    self.nmbr_files_copyed += 1
 
             except (IOError, error) as why:
                 errors.append((source, trgt_file, str(why)))
@@ -114,7 +118,8 @@ class ImageCopy:
         trgt_dir = path.normpath(trgt_dir)
         if not path.isdir(trgt_dir):
             try:
-                makedirs(trgt_dir)
+                if not self.test_without_copy:
+                    makedirs(trgt_dir)
                 log("Created directory:" + trgt_dir)
             except (error) as err:
                 log("Couldn't create directory: " + trgt_dir)
@@ -161,10 +166,10 @@ class ImageCopy:
         f.close()
         if DTO_KEY in tags:
             ctime = str(tags[DTO_KEY])
-            if ctime[0:3] is "0000": #If year is zero then return None
+            if "0000" == ctime[0:4]: #If year is zero then return None
                 return None
             else:
-                return None
+                return ctime
         else:
             return None
 
@@ -175,12 +180,13 @@ class ImageCopy:
                 tm_min=43, tm_sec=0, tm_wday=2, tm_yday=142, tm_isdst=1)
         """
 
-        if system() is 'Windows':
             # On Windows use getctime()
-            ltime = time.localtime(path.getctime(source))
-        else:
+            # ltime = time.localtime(path.getctime(source))
+
             # On POSIX system use getmtime()
-            ltime = time.localtime(path.getmtime(source))
+            # At least Windows 10 seems to be POSIX
+
+        ltime = time.localtime(path.getmtime(source))
 
         ctime = time.strftime("%Y:%m", ltime)
         return str(ctime)
