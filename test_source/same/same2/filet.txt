@@ -1,0 +1,10 @@
+465648
+drwxr-xr-x  13 petri  staff        442 Sep 15 15:14 .
+drwxr-xr-x  16 petri  staff        544 Sep 15 15:13 ..
+-rw-r--r--@  1 petri  staff       6148 Sep 14 13:24 .DS_Store
+-rw-r--r--@  1 petri  staff     132097 Dec 15  2008 021205.3gp
+-rw-r--r--@  1 petri  staff    1473118 May 19  2008 18052008040.jpg
+-rw-r--r--@  1 petri  staff     422287 Oct 18  2008 24.11.2008 075.JPG
+-rw-r--r--@  1 petri  staff      45446 Dec 15  2008 2Otto201007.amr
+-rw-r--r--@  1 petri  staff   78076220 Jul 12  2013 DSC_0117.AVI
+

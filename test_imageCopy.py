@@ -21,7 +21,7 @@ class ImageCopySetupTestCase(TestCase):
 
     def test_copyfiles_two_times(self):
         self.ic.copy_files()
-        self.assertEqual(self.ic.nmbr_files_copyed, 14)
+        self.assertEqual(self.ic.nmbr_files_copyed, 15)
         remove("ööö_target/Kuvat/2008-05 Toukokuu/18052008040.jpg")
         remove("ööö_target/muut_tiedostot/filet(1).txt")
         self.ic.copy_files()
