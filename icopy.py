@@ -96,7 +96,8 @@ class ImageCopy:
                     trgt_file = temp_arr[0] + '(1).' + temp_arr[1]
                 else:
                     temp_arr = trgt_file.rsplit('(', 1)
-                    trgt_file = temp_arr[0] + '(' + str(count) + temp_arr[1][len(str(count)):]
+                    temp_arr[1] = '(' + str(count) + temp_arr[1][temp_arr[1].rindex(')'):]
+                    trgt_file = temp_arr[0] + temp_arr[1]
                 count += 1
             try:
                 # copy file
