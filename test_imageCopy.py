@@ -38,7 +38,7 @@ class TestImageCopyGetFileDate(TestCase):
 
     def test_get_creationtime(self):
         file = 'test_source/Kuva027_no_exif.jpg'
-        self.assertEqual(ImageCopy.get_creationtime(file), '2008:12')
+        self.assertEqual(ImageCopy.get_creationtime(file), '2015:09')
 
     def test_get_filenamedate_None(self):
         file = 'test_source/Kuva 030.jpg'
