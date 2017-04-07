@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
+
 from tkinter.ttk import *
 import icopy
 import stdout_redirect as stdtotextw
@@ -137,11 +138,25 @@ class ImageCopyUi():
         self.logtext.config(state = 'normal')
         self.redir.flush()
         self.redir.start()
-        self.ic = icopy.ImageCopy(self.source.get(), self.target.get(), self.noCopy.get())
-        self.ic.copy_files()
+        self.ic_thread = icopy.ImageCopy(self.source.get(), self.target.get(), self.noCopy.get())
+        # ic.copy_files()
+        self.ic_thread.start()
+        # disable Copy button
+        if self.ic_thread.is_alive():
+            self.btn_copy.config(state='disabled')
+            self._check_thread()
+
+        self.btn_copy.config(state='enabled')
+
         self.redir.flush()
         self.redir.stop()
         self.logtext.config(state = 'disabled')
+
+    def _check_thread(self):
+        # Still alive? Check again in half a second
+        if self.ic_thread.is_alive():
+            self.parent.after(500, self._check_thread)
+
 
 def main():
 
