@@ -137,8 +137,10 @@ class ImageCopyUi():
         self.logtext.config(state = 'normal')
         self.redir.flush()
         self.redir.start()
-        self.ic = icopy.ImageCopy(self.source.get(), self.target.get(), self.noCopy.get())
-        self.ic.copy_files()
+        ic_thread = icopy.ImageCopy(self.source.get(), self.target.get(), self.noCopy.get())
+        # ic.copy_files()
+        ic_thread.start()
+
         self.redir.flush()
         self.redir.stop()
         self.logtext.config(state = 'disabled')

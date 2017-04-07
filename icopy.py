@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import time
 from os import path, walk, makedirs, error
-from platform import system
+import threading
 import shutil
 import filecmp
 import sys
@@ -20,9 +20,9 @@ def log(text):
     sys.stdout.flush()
 
 
-class ImageCopy:
+class ImageCopy(threading.Thread):
     def __init__(self, source, target, test_without_copy=True):
-
+        threading.Thread.__init__(self)
         self.copyfrom = path.normpath(source.replace("\ ", " "))
         self.copyto = path.normpath(target.replace("\ ", " "))
         self.move_manually_folder = OTHER_IMAGES_DIR
@@ -30,6 +30,9 @@ class ImageCopy:
         self.test_without_copy = test_without_copy
         self.nmbr_files_copyed = 0
         self.nmbr_files_total = 0
+
+    def run(self):
+        self.copy_files()
 
     @staticmethod
     def _enctoutf8(source):
