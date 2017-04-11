@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import time
 from os import path, walk, makedirs, error
+import logging as log
 import threading
 import shutil
 import filecmp
@@ -10,15 +11,9 @@ import exifread
 
 VIDEO_FILE_DIR = "Videot"
 IMAGE_FILE_DIR = "Kuvat"
-OTHER_IMAGES_DIR = "muut_kuvat"
 OTHER_FILES_DIR = "muut_tiedostot"
+OTHER_IMAGES_DIR = OTHER_FILES_DIR
 DTO_KEY = "EXIF DateTimeOriginal"
-
-
-def log(text):
-    sys.stdout.write(text + '\n')
-    sys.stdout.flush()
-
 
 class ImageCopy(threading.Thread):
     def __init__(self, source, target, test_without_copy=True):
@@ -34,12 +29,12 @@ class ImageCopy(threading.Thread):
     def run(self):
         self.copy_files()
 
-    @staticmethod
-    def _enctoutf8(source):
-        if isinstance(source, str):
-            return str(source, 'utf-8', 'ignore')
-        else:
-            return source
+    # @staticmethod
+    # def _enctoutf8(source):
+    #     if isinstance(source, str):
+    #         return str(source, 'utf-8', 'ignore')
+    #     else:
+    #         return source
 
     def copy_files(self):
         """
@@ -52,10 +47,10 @@ class ImageCopy(threading.Thread):
         self.nmbr_files_total = 0
 
         if self.copyfrom == self.copyto:
-            print("Source and target directories cannot be same!")
+            log.warning("Source and target directories cannot be same!")
             return
         if not path.isdir(self.copyfrom):
-            print("Source is not directory!")
+            log.warning("Source is not directory!")
             return
 
         for root, dirs, files in walk(self.copyfrom, topdown=True):
@@ -72,49 +67,52 @@ class ImageCopy(threading.Thread):
                     # Ignore files and dirs starting with '.' and file names without file type information.
                     if not('.' in name[0:1] or '.' in root[0:1] or '.' not in name[1:]):
                         self._copy_one_file(source, OTHER_FILES_DIR)
+                    else:
+                        log.info("File %s not copied.", source)
 
-        log("Number files copyed: {0}\nTotal number of files: {1}".format(str(self.nmbr_files_copyed),
-                                                                             str(self.nmbr_files_total)))
+        log.info("Number files copyed: {0}".format(str(self.nmbr_files_copyed)))
+        log.info("Total number of files: {0}".format(str(self.nmbr_files_total)))
 
     def _copy_one_file(self, source, filetype):
-        log("Source file: " + source)
+        log.info("Source file: " + source)
         if filetype != OTHER_FILES_DIR:
-            trgt_dir = self.get_directoryname(source, filetype)
-            trgt_dir = path.join(filetype, trgt_dir)
+            target_dir = self.get_directoryname(source, filetype)
+            target_dir = path.join(filetype, target_dir)
         else:
-            trgt_dir = OTHER_FILES_DIR
+            target_dir = OTHER_FILES_DIR
 
-        trgt_dir = self.create_directory(trgt_dir)
+        target_dir = self.create_directory(target_dir)
         errors = []
-        if trgt_dir:
+        if target_dir:
             count = 1
-            trgt_file = path.join(trgt_dir, path.basename(source))
-            while path.isfile(trgt_file):
+            target_file = path.join(target_dir, path.basename(source))
+            while path.isfile(target_file):
                 # if there is different file with same name add (x) to filename
                 # e.g. kuva(2).jpg
-                if filecmp.cmp(source, trgt_file, shallow=False):
+                if filecmp.cmp(source, target_file, shallow=False):
+                    log.info("File exists with name %s in the directory", target_file)
                     return
                 if count == 1:
-                    temp_arr = trgt_file.rsplit('.', 1)
-                    trgt_file = temp_arr[0] + '(1).' + temp_arr[1]
+                    temp_arr = target_file.rsplit('.', 1)
+                    target_file = temp_arr[0] + '(1).' + temp_arr[1]
                 else:
-                    temp_arr = trgt_file.rsplit('(', 1)
+                    temp_arr = target_file.rsplit('(', 1)
                     temp_arr[1] = '(' + str(count) + temp_arr[1][temp_arr[1].rindex(')'):]
-                    trgt_file = temp_arr[0] + temp_arr[1]
+                    target_file = temp_arr[0] + temp_arr[1]
                 count += 1
             try:
                 # copy file
                 if not self.test_without_copy:
-                    log("Copyed file: " + trgt_file)
-                    shutil.copy2(source, trgt_file)
+                    shutil.copy2(source, target_file)
+                    log.info("Copied file: " + target_file)
                     self.nmbr_files_copyed += 1
                 else:
-                    log("Target file: " + trgt_file)
                     self.nmbr_files_copyed += 1
+                    log.info("Target file: " + target_file)
 
             except (IOError, error) as why:
-                errors.append((source, trgt_file, str(why)))
-                log("Copying failed: " + trgt_file)
+                errors.append((source, target_file, str(why)))
+                log.warning("Copying failed: " + target_file)
 
     def create_directory(self, trgt_dir):
         # create path with new directory name
@@ -124,9 +122,9 @@ class ImageCopy(threading.Thread):
             try:
                 if not self.test_without_copy:
                     makedirs(trgt_dir)
-                log("Created directory:" + trgt_dir)
+                log.info("Created directory: " + trgt_dir)
             except (error) as err:
-                log("Couldn't create directory: " + trgt_dir)
+                log.warning("Couldn't create directory: " + trgt_dir)
                 if trgt_dir.endswith(OTHER_FILES_DIR):
                     return None
                 else:
@@ -142,7 +140,7 @@ class ImageCopy(threading.Thread):
         ctime = self.get_file_creationtime(source, filetype)
 
         if ctime is None:
-            log("File creation time missing! File moved to " + self.move_manually_folder)
+            log.info("File creation time missing for file %s! File moved to %s",source, self.move_manually_folder)
             dirname = self.move_manually_folder
         else:
             dirname = ctime[:4] + "-" + ctime[5:7] + " " + months[ctime[5:7]]
@@ -159,8 +157,8 @@ class ImageCopy(threading.Thread):
         if ctime is None:
             """ Check file name for date i.e ddmmyyyyxxx.jpg. if it has a date use it"""
             ctime = self.get_filenamedate(source)
-            if ctime is None:
-                ctime = self.get_creationtime(source)
+            # if ctime is None:
+            #     ctime = self.get_creationtime(source)
         return ctime
 
     @staticmethod
@@ -193,6 +191,7 @@ class ImageCopy(threading.Thread):
         ltime = time.localtime(path.getmtime(source))
 
         ctime = time.strftime("%Y:%m", ltime)
+        log.debug("getmtime returned %s", ctime)
         return str(ctime)
 
     @staticmethod
